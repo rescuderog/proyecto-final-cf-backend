@@ -1,4 +1,5 @@
-import { IsBoolean, IsEmail, IsNotEmpty, IsNumber, IsOptional } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
+import { IsEmail, IsNotEmpty, IsNumber, IsOptional } from "class-validator";
 
 /**
  * DTO for updating a user info. We implement optional class validators all around, as we don't
@@ -8,21 +9,21 @@ export class UpdateUserDto {
 
     @IsOptional()
     @IsNotEmpty()
+    @ApiProperty({ example: 'password', description: 'User Password' })
     readonly password?: string;
 
     @IsOptional()
     @IsEmail()
+    @ApiProperty({ example: 'email@test.com', description: 'User email (must conform to the usual x@y.z)' })
     readonly email?: string;
 
     @IsOptional()
-    @IsBoolean()
-    readonly isAdmin?: boolean;
-
-    @IsOptional()
     @IsNotEmpty()
+    @ApiProperty({ example: 'Leroy Jenkins', description: 'Name and surname. Optional value.' })
     readonly name?: string;
 
     @IsOptional()
     @IsNumber()
+    @ApiProperty({ example: '18', description: 'Age' })
     readonly age?: number;
 }
