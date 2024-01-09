@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { plainToClass } from "class-transformer";
-import { Model } from "mongoose";
+import { Model, isValidObjectId } from "mongoose";
 import { CreateUserDto } from "src/db/dto/create-user.dto";
 import { SelectUserDto } from "src/db/dto/select-user.dto";
 import { UpdateUserDto } from "src/db/dto/update-user.dto";
@@ -27,7 +27,17 @@ export class UsersService {
      * @returns Promise<SelectUserDto>
      */
     async findOne(id: string): Promise<SelectUserDto> {
-        return this.userModel.findById(id, { username: 1, email: 1, age: 1, _id: 1 }).lean();
+        if (!isValidObjectId(id)) {
+            throw new BadRequestException('The ID inputted: ' + id + ' is not valid.');
+        }
+
+        const user = await this.userModel.findById(id);
+
+        if (!user) {
+            throw new NotFoundException('There is no user with an ID of ' + id);
+        }
+
+        return plainToClass(SelectUserDto, user.toJSON(), { excludeExtraneousValues: true });
     }
 
     /**
@@ -48,6 +58,10 @@ export class UsersService {
      * @returns Promise<User>
      */
     async updateUser(id: string, params: UpdateUserDto): Promise<User> {
+        if (!isValidObjectId(id)) {
+            throw new BadRequestException('The ID inputted: ' + id + 'is not valid.');
+        }
+
         return this.userModel.updateOne({ _id: id }, params).lean();
     }
 
@@ -57,6 +71,10 @@ export class UsersService {
      * @returns Promise<User> 
      */
     async deleteUser(id: string): Promise<User> {
+        if (!isValidObjectId(id)) {
+            throw new BadRequestException('The ID inputted: ' + id + 'is not valid.');
+        }
+
         return this.userModel.deleteOne({ _id: id }).lean();
     }
 }
