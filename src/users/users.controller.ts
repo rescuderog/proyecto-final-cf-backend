@@ -18,7 +18,7 @@ export class UsersController {
     ) { }
 
     @Get()
-    @ApiResponse({ status: 200, description: 'Returns a list of all users.' })
+    @ApiResponse({ status: 200, description: 'Returns a list of all users or an Error.' })
     async getAllUsers(): Promise<SelectUserDto[]> {
         try {
             const data = await this.usersService.findAll();
@@ -31,7 +31,7 @@ export class UsersController {
     }
 
     @Get(':id')
-    @ApiResponse({ status: 200, description: 'Returns an specific user if it matches the id in the DB.' })
+    @ApiResponse({ status: 200, description: 'Returns an specific user if it matches the id in the DB or an Error.' })
     async getSpecificUser(@Param('id') id: string): Promise<SelectUserDto> {
         try {
             const data = await this.usersService.findOne(id);
@@ -44,7 +44,8 @@ export class UsersController {
     }
 
     @Post()
-    @ApiResponse({ status: 201, description: 'Returns the user data that has been created.' })
+    @ApiResponse({ status: 201, description: 'Returns the user data that has been created or an Error.' })
+    @ApiResponse({ status: 400, description: 'One or more of the fields are invalid or are missing in the request.' })
     async createUser(@Body() createDto: CreateUserDto): Promise<SelectUserDto> {
         try {
             const data = await this.usersService.createUser(createDto);

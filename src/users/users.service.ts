@@ -18,7 +18,11 @@ export class UsersService {
      * @returns Promise<SelectUserDto[]>
      */
     async findAll(): Promise<SelectUserDto[]> {
-        return this.userModel.find({}, { username: 1, email: 1, age: 1, _id: 1 }).lean();
+        const users = await this.userModel.find({}, {}).lean();
+        return users.map(
+            user => {
+                return plainToClass(SelectUserDto, user, { excludeExtraneousValues: true })
+            });
     }
 
     /**
@@ -46,9 +50,8 @@ export class UsersService {
      * @returns Promise<SelectUserDto>
      */
     async createUser(data: CreateUserDto): Promise<SelectUserDto> {
-        const createdUser = new this.userModel(data);
-        const dataReturned = await createdUser.save();
-        return plainToClass(SelectUserDto, dataReturned.toJSON(), { excludeExtraneousValues: true });
+        const result = await this.userModel.create(data);
+        return plainToClass(SelectUserDto, result.toJSON(), { excludeExtraneousValues: true });
     }
 
     /**

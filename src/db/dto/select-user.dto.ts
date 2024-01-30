@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Expose } from "class-transformer";
+import { Expose, Type } from "class-transformer";
 
 /**
  * DTO for returning a user info.
@@ -19,6 +19,7 @@ export class SelectUserDto {
     readonly age: number;
 
     @Expose()
+    @Type(() => String)
     @ApiProperty({ example: 'exampleid', description: 'User ID in the DB' })
     readonly _id: string;
 

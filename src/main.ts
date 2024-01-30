@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { ValidationError } from 'class-validator';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,7 +20,12 @@ async function bootstrap() {
 
   //this is so we can use class validators globally, with the framework doing the validation automatically
   //when it detects that the info goes through one of them (in this case, we validate on the dtos)
-  app.useGlobalPipes(new ValidationPipe());
+  //we redirect all validator exceptions to a custom 400 response so a potential bot attack has a harder time bruteforcing through it
+  app.useGlobalPipes(new ValidationPipe({
+    exceptionFactory: (validationErrors: ValidationError[] = []) => {
+      return new BadRequestException('One or more elements are missing or invalid in this request.');
+    }
+  }));
 
   await app.listen(3000);
 }
