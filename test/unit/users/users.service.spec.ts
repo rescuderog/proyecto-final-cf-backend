@@ -2,8 +2,8 @@ import { Test, TestingModule } from "@nestjs/testing"
 import { User, UserSchema } from "src/db/schemas/user.schema"
 import { MongooseModule, getModelToken } from '@nestjs/mongoose'
 import { UsersService } from "src/users/users.service"
-import mongoose, { Model } from "mongoose"
-import { mockCreateUserData, mockEmptyUser, mockResultUser, mockUser } from "../mocks/users.stub"
+import { Model } from "mongoose"
+import { mockCreateUserData, mockResultUser } from "../mocks/users.stub"
 import * as ct from 'class-transformer'
 import { BadRequestException, NotFoundException } from "@nestjs/common"
 import { closeInMongodConnection, rootMongooseTestModule } from "test/utils/MongooseTestModule"

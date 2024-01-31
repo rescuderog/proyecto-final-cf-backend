@@ -7,7 +7,7 @@ export type UserDocument = HydratedDocument<User>;
     timestamps: true
 })
 /**
-* Users table schema
+* Users collection schema
 */
 export class User {
 

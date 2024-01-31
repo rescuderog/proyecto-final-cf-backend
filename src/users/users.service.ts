@@ -58,7 +58,7 @@ export class UsersService {
      * Attempts to update the user with the id parameter. Returns the success information of the query if the user is updated.
      * @param id string    The id of the user
      * @param params UpdateUserDto    The data used to create the user
-     * @returns Promise<User>
+     * @returns Promise<Object>
      */
     async updateUser(id: string, params: UpdateUserDto): Promise<Object> {
         if (!isValidObjectId(id)) {
@@ -86,7 +86,7 @@ export class UsersService {
     /**
      * Attempts to delete the user with the id parameter. Returns the success information of the query if the user is deleted.
      * @param id string    The id of the user
-     * @returns Promise<User> 
+     * @returns Promise<Object> 
      */
     async deleteUser(id: string): Promise<Object> {
         if (!isValidObjectId(id)) {

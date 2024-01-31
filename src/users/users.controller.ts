@@ -32,6 +32,7 @@ export class UsersController {
 
     @Get(':id')
     @ApiResponse({ status: 200, description: 'Returns an specific user if it matches the id in the DB or an Error.' })
+    @ApiResponse({ status: 400, description: 'One or more of the fields are invalid or are missing in the request.' })
     async getSpecificUser(@Param('id') id: string): Promise<SelectUserDto> {
         try {
             const data = await this.usersService.findOne(id);
@@ -58,8 +59,9 @@ export class UsersController {
     }
 
     @Put(':id')
-    @ApiResponse({ status: 201, description: 'Return the amount of rows modified. If it finds the User ID, it should be 1. If not, it should be 0.' })
-    async updateUser(@Param('id') id: string, @Body() params: UpdateUserDto): Promise<User> {
+    @ApiResponse({ status: 201, description: 'Return status: success on correct update. If not, it returns an error.' })
+    @ApiResponse({ status: 400, description: 'One or more of the fields are invalid or are missing in the request.' })
+    async updateUser(@Param('id') id: string, @Body() params: UpdateUserDto): Promise<Object> {
         try {
             const data = await this.usersService.updateUser(id, params);
             return data;
@@ -71,8 +73,9 @@ export class UsersController {
     }
 
     @Delete(':id')
-    @ApiResponse({ status: 201, description: 'Return the amount of rows deleted. If it finds the User ID, it should be 1. If not, it should be 0.' })
-    async deleteUser(@Param('id') id: string): Promise<User> {
+    @ApiResponse({ status: 201, description: 'Return status: success on correct deletion. If not, it returns an error.' })
+    @ApiResponse({ status: 400, description: 'One or more of the fields are invalid or are missing in the request.' })
+    async deleteUser(@Param('id') id: string): Promise<Object> {
         try {
             const data = await this.usersService.deleteUser(id);
             return data;
