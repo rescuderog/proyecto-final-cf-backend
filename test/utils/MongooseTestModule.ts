@@ -16,9 +16,6 @@ export const rootMongooseTestModule = (options: MongooseModuleOptions = {}) => M
 });
 
 export const closeInMongodConnection = async () => {
-    console.log('Mongod stop called');
     await mongoose.disconnect();
-    console.log('Mongoose disconnected');
     if (mongod) await mongod.stop();
-    console.log('Mongod stopped');
 }

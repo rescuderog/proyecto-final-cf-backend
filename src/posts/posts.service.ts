@@ -49,6 +49,9 @@ export class PostsService {
      * @returns Promise<SelectPostDto[]>
      */
     async findAllFromUser(userid: string): Promise<SelectPostDto[]> {
+        if (!isValidObjectId(userid)) {
+            throw new BadRequestException('The ID inputted: ' + userid + ' is not valid.');
+        }
         const users = await this.postModel.find({ author: userid }, {}).lean();
         return users.map(
             user => {

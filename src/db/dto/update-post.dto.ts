@@ -10,17 +10,17 @@ export class UpdatePostDto {
     @IsOptional()
     @IsNotEmpty()
     @ApiProperty({ example: 'Example Title', description: 'Title of the post' })
-    readonly title: string;
+    readonly title?: string;
 
     @IsOptional()
     @IsNotEmpty()
     @ApiProperty({ example: 'Lorem ipsum', description: 'Post content in plain text' })
-    readonly content: string
+    readonly content?: string
 
     @IsOptional()
     @IsNotEmpty()
     @IsArray()
     @ApiProperty({ example: '["cooking", "dancing"]', description: 'Array of categories the post is tagged for' })
-    readonly categories: string[]
+    readonly categories?: string[]
 
 }
