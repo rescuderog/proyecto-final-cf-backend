@@ -80,11 +80,70 @@ describe('UsersService', () => {
             mockResultUserWithId = { _id: createdUser._id, ...mockResultUser };
 
             const result = await usersService.findAll();
-            console.log(result);
 
             expect(result).toEqual([mockResultUserWithId]);
         });
     });
+
+    describe('updateUser', () => {
+        beforeEach(async () => {
+            const createdUser = await usersService.createUser(mockCreateUserData);
+            mockResultUserWithId = { _id: createdUser._id, ...mockResultUser };
+        })
+
+        it('should return success and update the specified user data', async () => {
+            const newAge = Math.random() * (70 - 18) + 18
+            const dataToUpdate = {
+                age: newAge
+            };
+
+            const result = await usersService.updateUser(mockResultUserWithId._id, dataToUpdate);
+            expect(result).toEqual({
+                status: 'Success'
+            });
+        });
+
+        it('should throw a NotFoundException if a valid but inexistent ID is inputted', async () => {
+            const newAge = Math.random() * (70 - 18) + 18
+            const dataToUpdate = {
+                age: newAge
+            };
+
+            await expect(usersService.updateUser('5ce819935e539c343f141ece', dataToUpdate)).rejects.toThrow(NotFoundException);
+        });
+
+        it('should throw a BadRequestException if the ID is not a valid ID', async () => {
+            const newAge = Math.random() * (70 - 18) + 18
+            const dataToUpdate = {
+                age: newAge
+            };
+
+            await expect(usersService.updateUser('test123', dataToUpdate)).rejects.toThrow(BadRequestException);
+        })
+    });
+
+    describe('deleteUser', () => {
+        beforeEach(async () => {
+            const createdUser = await usersService.createUser(mockCreateUserData);
+            mockResultUserWithId = { _id: createdUser._id, ...mockResultUser };
+        })
+
+        it('should return the filtered deleted user data and delete the user with the specified ID', async () => {
+            const result = await usersService.deleteUser(mockResultUserWithId._id);
+
+            expect(result).toEqual({
+                status: 'Success'
+            });
+        });
+
+        it('should throw a NotFoundException if a valid but inexistent ID is inputted', async () => {
+            await expect(usersService.deleteUser('5ce819935e539c343f141ece')).rejects.toThrow(NotFoundException);
+        });
+
+        it('should throw a BadRequestException if the ID is not a valid ID', async () => {
+            await expect(usersService.deleteUser('test123')).rejects.toThrow(BadRequestException);
+        })
+    })
 
     afterAll(async () => {
         jest.setTimeout(20000)

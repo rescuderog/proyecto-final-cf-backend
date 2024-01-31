@@ -60,12 +60,27 @@ export class UsersService {
      * @param params UpdateUserDto    The data used to create the user
      * @returns Promise<User>
      */
-    async updateUser(id: string, params: UpdateUserDto): Promise<User> {
+    async updateUser(id: string, params: UpdateUserDto): Promise<Object> {
         if (!isValidObjectId(id)) {
-            throw new BadRequestException('The ID inputted: ' + id + 'is not valid.');
+            throw new BadRequestException('The ID inputted: ' + id + ' is not valid.');
         }
 
-        return this.userModel.updateOne({ _id: id }, params).lean();
+        const result = await this.userModel.updateOne({ _id: id }, params).lean();
+
+        if (result.matchedCount === 1) {
+            if (result.modifiedCount === 1) {
+                return {
+                    status: 'Success'
+                };
+            }
+            else {
+                return {
+                    status: 'Nothing was modified'
+                };
+            }
+        } else {
+            throw new NotFoundException('There is no user with an ID of ' + id);
+        }
     }
 
     /**
@@ -73,11 +88,19 @@ export class UsersService {
      * @param id string    The id of the user
      * @returns Promise<User> 
      */
-    async deleteUser(id: string): Promise<User> {
+    async deleteUser(id: string): Promise<Object> {
         if (!isValidObjectId(id)) {
-            throw new BadRequestException('The ID inputted: ' + id + 'is not valid.');
+            throw new BadRequestException('The ID inputted: ' + id + ' is not valid.');
         }
 
-        return this.userModel.deleteOne({ _id: id }).lean();
+        const result = await this.userModel.deleteOne({ _id: id }).lean();
+
+        if (result.deletedCount === 1) {
+            return {
+                status: 'Success'
+            };
+        } else {
+            throw new NotFoundException('There is no user with an ID of ' + id);
+        }
     }
 }
