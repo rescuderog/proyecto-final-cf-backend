@@ -12,7 +12,7 @@ import { PostsService } from "src/posts/posts.service"
 import { Post, PostSchema } from "src/db/schemas/post.schema"
 import { CreatePostDto } from "src/db/dto/create-post.dto"
 import { mockCreatePostData } from "../mocks/posts.stub"
-import { SelectPostDto } from "src/db/dto/select-post-dto"
+import { SelectPostDto } from "src/db/dto/select-post.dto"
 import { generateRandomText } from "test/utils/generateRandomText"
 
 describe('PostsService', () => {

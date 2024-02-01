@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { plainToClass } from "class-transformer";
 import { Model, isValidObjectId } from "mongoose";
@@ -6,6 +6,7 @@ import { CreateUserDto } from "src/db/dto/create-user.dto";
 import { SelectUserDto } from "src/db/dto/select-user.dto";
 import { UpdateUserDto } from "src/db/dto/update-user.dto";
 import { User } from "src/db/schemas/user.schema";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class UsersService {
@@ -50,7 +51,14 @@ export class UsersService {
      * @returns Promise<SelectUserDto>
      */
     async createUser(data: CreateUserDto): Promise<SelectUserDto> {
-        const result = await this.userModel.create(data);
+        const dataToCreate = {
+            username: data.username,
+            password: await this.hashPasword(data.password),
+            email: data.email,
+            name: data.name,
+            age: data.age
+        }
+        const result = await this.userModel.create(dataToCreate);
         return plainToClass(SelectUserDto, result.toJSON(), { excludeExtraneousValues: true });
     }
 
@@ -102,5 +110,17 @@ export class UsersService {
         } else {
             throw new NotFoundException('There is no user with an ID of ' + id);
         }
+    }
+
+    /**
+     * Helper function to generate a hash for a password, so we don't store passwords in plaintext.
+     * @param password string   Password as plaintext
+     * @returns Promise<string>
+     */
+    async hashPasword(password): Promise<string> {
+        const saltRounds = 10;
+        const hashedPassword = bcrypt.hash(password, saltRounds);
+
+        return hashedPassword;
     }
 }

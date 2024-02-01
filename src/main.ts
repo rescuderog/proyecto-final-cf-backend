@@ -12,6 +12,17 @@ async function bootstrap() {
     .setTitle('API del Proyecto Final del Bootcamp de CodigoFacilito (JS en el Backend)')
     .setDescription('Esta es una API que permite realizar las operaciones CRUD con dos modelos (usuarios y posts)')
     .setVersion('0.1')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth'
+    )
     .build();
 
   //we setup that document with the config created just before

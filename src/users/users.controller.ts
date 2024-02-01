@@ -1,12 +1,15 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Inject, Param, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Inject, Param, Post, Put, Request, UnauthorizedException, UseGuards } from "@nestjs/common";
 import { UsersService } from "./users.service";
-import { ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { CreateUserDto } from "src/db/dto/create-user.dto";
-import { User } from "src/db/schemas/user.schema";
 import { UpdateUserDto } from "src/db/dto/update-user.dto";
 import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
 import { Logger } from "winston";
 import { SelectUserDto } from "src/db/dto/select-user.dto";
+import { LocalAuthGuard } from "src/auth/guards/local-auth.guard";
+import { AuthService } from "src/auth/auth.service";
+import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
+import { UserLoginDto } from "src/db/dto/user-login.dto";
 
 @ApiTags('users')
 @Controller("users")
@@ -14,6 +17,7 @@ export class UsersController {
 
     constructor(
         private readonly usersService: UsersService,
+        private readonly authService: AuthService,
         @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger
     ) { }
 
@@ -59,30 +63,53 @@ export class UsersController {
     }
 
     @Put(':id')
-    @ApiResponse({ status: 201, description: 'Return status: success on correct update. If not, it returns an error.' })
+    @UseGuards(JwtAuthGuard)
+    @ApiResponse({ status: 200, description: 'Return status: success on correct update. If not, it returns an error.' })
     @ApiResponse({ status: 400, description: 'One or more of the fields are invalid or are missing in the request.' })
-    async updateUser(@Param('id') id: string, @Body() params: UpdateUserDto): Promise<Object> {
-        try {
-            const data = await this.usersService.updateUser(id, params);
-            return data;
-        } catch (e) {
-            this.logger.error(e);
-            //we throw a 200 code anyways in case of an error in order to prevent bots to scan for vulnerabilities via the status code change
-            throw new HttpException('Error. Try Again', HttpStatus.OK);
+    @ApiResponse({ status: 401, description: "You don't have enough permissions to perform this action." })
+    @ApiBearerAuth('JWT-auth')
+    async updateUser(@Param('id') id: string, @Body() params: UpdateUserDto, @Request() req): Promise<Object> {
+        if (id === req.user._id || req.user.isAdmin) {
+            try {
+                const data = await this.usersService.updateUser(id, params);
+                return data;
+            } catch (e) {
+                this.logger.error(e);
+                //we throw a 200 code anyways in case of an error in order to prevent bots to scan for vulnerabilities via the status code change
+                throw new HttpException('Error. Try Again', HttpStatus.OK);
+            }
+        } else {
+            throw new UnauthorizedException("You don't have enough permissions to perform this action.");
         }
+
     }
 
     @Delete(':id')
-    @ApiResponse({ status: 201, description: 'Return status: success on correct deletion. If not, it returns an error.' })
+    @UseGuards(JwtAuthGuard)
+    @ApiResponse({ status: 200, description: 'Return status: success on correct deletion. If not, it returns an error.' })
     @ApiResponse({ status: 400, description: 'One or more of the fields are invalid or are missing in the request.' })
-    async deleteUser(@Param('id') id: string): Promise<Object> {
-        try {
-            const data = await this.usersService.deleteUser(id);
-            return data;
-        } catch (e) {
-            this.logger.error(e);
-            //we throw a 200 code anyways in case of an error in order to prevent bots to scan for vulnerabilities via the status code change
-            throw new HttpException('Error. Try Again', HttpStatus.OK);
+    @ApiResponse({ status: 401, description: "You don't have enough permissions to perform this action." })
+    @ApiBearerAuth('JWT-auth')
+    async deleteUser(@Param('id') id: string, @Request() req): Promise<Object> {
+        if (req.user.isAdmin) {
+            try {
+                const data = await this.usersService.deleteUser(id);
+                return data;
+            } catch (e) {
+                this.logger.error(e);
+                //we throw a 200 code anyways in case of an error in order to prevent bots to scan for vulnerabilities via the status code change
+                throw new HttpException('Error. Try Again', HttpStatus.OK);
+            }
+        } else {
+            throw new UnauthorizedException("You don't have enough permissions to perform this action.");
         }
     }
+
+    @UseGuards(LocalAuthGuard)
+    @Post('login')
+    @ApiResponse({ status: 201, description: 'Returns a bearer token on success, nothing on fail' })
+    async loginUser(@Body() loginInfo: UserLoginDto, @Request() req): Promise<Object> {
+        return this.authService.login(req.user);
+    }
+
 }

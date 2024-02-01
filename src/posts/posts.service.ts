@@ -2,11 +2,13 @@ import { BadRequestException, HttpException, Injectable, NotFoundException } fro
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, isValidObjectId } from "mongoose";
 import { CreatePostDto } from "src/db/dto/create-post.dto";
-import { SelectPostDto } from "src/db/dto/select-post-dto";
+import { SelectPostDto } from "src/db/dto/select-post.dto";
 import { UpdatePostDto } from "src/db/dto/update-post.dto";
 import { Post } from "src/db/schemas/post.schema";
 import { plainToClass } from "class-transformer";
 import { UsersService } from "src/users/users.service";
+import { SearchPostDto } from "src/db/dto/search-post.dto";
+import { FilterPostDto } from "src/db/dto/filter-post.dto";
 
 @Injectable()
 export class PostsService {
@@ -52,10 +54,10 @@ export class PostsService {
         if (!isValidObjectId(userid)) {
             throw new BadRequestException('The ID inputted: ' + userid + ' is not valid.');
         }
-        const users = await this.postModel.find({ author: userid }, {}).lean();
-        return users.map(
-            user => {
-                return plainToClass(SelectPostDto, user, { excludeExtraneousValues: true })
+        const posts = await this.postModel.find({ author: userid }, {}).lean();
+        return posts.map(
+            post => {
+                return plainToClass(SelectPostDto, post, { excludeExtraneousValues: true })
             });
     }
 
@@ -126,6 +128,35 @@ export class PostsService {
         } else {
             throw new NotFoundException('There is no user with an ID of ' + id);
         }
+    }
+
+    /**
+     * Searches for posts with the criteria matching the parameters, and returns them in a paginated way as defined by the
+     * skip and limit parameters.
+     * @param searchParams SearchPostDto
+     * @param limit number
+     * @param skip number
+     * @returns Promise<SelectPostDto[]> 
+     */
+    async searchPost(searchParams: SearchPostDto, limit: number, skip: number): Promise<SelectPostDto[]> {
+        const posts = await this.postModel.find(searchParams).limit(limit).skip(skip).lean();
+        return posts.map(
+            post => {
+                return plainToClass(SelectPostDto, post, { excludeExtraneousValues: true })
+            });
+    }
+
+    /**
+     * Filters posts with the criteria provided (can filter by categories or by author)
+     * @param searchParams 
+     * @returns Promise<SelectPostDto[]> 
+     */
+    async filterPost(searchParams: FilterPostDto): Promise<SelectPostDto[]> {
+        const posts = await this.postModel.find(searchParams).lean();
+        return posts.map(
+            post => {
+                return plainToClass(SelectPostDto, post, { excludeExtraneousValues: true })
+            });
     }
 
 }

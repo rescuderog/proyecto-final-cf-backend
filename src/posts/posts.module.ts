@@ -4,7 +4,6 @@ import { Post, PostSchema } from 'src/db/schemas/post.schema';
 import { PostsController } from './posts.controller';
 import { PostsService } from './posts.service';
 import { UsersModule } from 'src/users/users.module';
-import { UsersService } from 'src/users/users.service';
 
 @Module({
     imports: [

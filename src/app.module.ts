@@ -5,6 +5,7 @@ import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
 import { utilities as nestWinstonModuleUtilities, WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -21,12 +22,13 @@ import * as winston from 'winston';
           level: 'error',
         }),
         new winston.transports.File({
-          filename: './logs/non-error.log'
+          filename: './logs/all-logs.log'
         })
       ]
     }),
     UsersModule,
-    PostsModule
+    PostsModule,
+    AuthModule
   ],
 })
 export class AppModule { }
