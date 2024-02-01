@@ -7,7 +7,6 @@ import { mockCreateUserData, mockResultUser } from "../mocks/users.stub"
 import * as ct from 'class-transformer'
 import { BadRequestException, NotFoundException } from "@nestjs/common"
 import { closeInMongodConnection, rootMongooseTestModule } from "test/utils/MongooseTestModule"
-import { SelectUserDto } from "src/db/dto/select-user.dto"
 import { PostsService } from "src/posts/posts.service"
 import { Post, PostSchema } from "src/db/schemas/post.schema"
 import { CreatePostDto } from "src/db/dto/create-post.dto"
